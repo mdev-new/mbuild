@@ -1,24 +1,19 @@
-# (C) zdhroud
-# All rights reserved.
+# mbuild -f .\template.ps1
 
-# mbuild -f ".\template.ps1" -t "build"
+$cc = "gcc"
 
-$cc = "tcc"
-
-function CC {
-	param($in,$out)
-
-	PrintStatus "CC `t -> $out"
-	& $cc -o $out ($in -join " ")
+# if you dont use flags you can omit them in the function decl
+# (and obviously the exec command too)
+function CC($in,$out,$flags) {
+	PrintStatus "CC `t$out"
+	Exec "$cc -o $out $in @flags"
 }
 
-$targets = @{
-	# output       rule  inputs       phony?
-	'main.exe' = @('CC', @('main.c'), $false);
+Build @{
+	# output       rule  inputs      flags (optional)
+	'main.exe' = @('CC', @('main.c'), @('-O3', '-s'));
 
 	# If no rule specified, target is just an alias
-	'build' = @('', @('main.exe'), $true);
+	# 'build' is the default rule name to build
+	'build' = @('', @('main.exe'));
 }
-
-# Off to the races!
-Build $targets
